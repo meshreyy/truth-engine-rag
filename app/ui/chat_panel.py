@@ -10,7 +10,9 @@ import os
 
 from app.ui import state_manager as sm
 
-API_BASE = os.getenv("API_BASE_URL", "http://localhost:8000")
+API_BASE = os.getenv("API_BASE_URL", "http://localhost:8000").rstrip("/")
+if API_BASE and not API_BASE.startswith(("http://", "https://")):
+    API_BASE = f"https://{API_BASE}"
 
 SOURCE_ICONS  = {"A": "🏆", "B": "🔧", "C": "📜"}
 SOURCE_LABELS = {

@@ -1,0 +1,35 @@
+# Render Blueprint: deploy FastAPI backend + Streamlit frontend.
+services:
+  - type: web
+    name: truth-engine-api
+    runtime: python
+    plan: standard
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.11
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: DEBUG
+        value: "false"
+
+  - type: web
+    name: truth-engine-ui
+    runtime: python
+    plan: starter
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run streamlit_app.py --server.address 0.0.0.0 --server.port $PORT --server.headless true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.11
+      - key: API_BASE_URL
+        fromService:
+          type: web
+          name: truth-engine-api
+          property: host
